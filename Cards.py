@@ -53,12 +53,8 @@ class Query_card:
         self.suit_img = []  # Thresholded, sized image of card's suit
         self.best_rank_match = "Unknown"  # Best matched rank
         self.best_suit_match = "Unknown"  # Best matched suit
-        self.rank_diff = (
-            0  # Difference between rank image and best matched train rank image
-        )
-        self.suit_diff = (
-            0  # Difference between suit image and best matched train suit image
-        )
+        self.rank_diff = 0  # Difference between rank image and best matched train rank image
+        self.suit_diff = 0  # Difference between suit image and best matched train suit image
 
 
 class Train_ranks:
@@ -148,8 +144,8 @@ def preprocess_image(image):
     # thresh_level = bkg_level + BKG_THRESH
 
     retval, thresh = cv2.threshold(blur, 190, 255, cv2.THRESH_BINARY)
-    cv2.imshow("thresh", thresh)
-    cv2.imwrite("/home/yjb/thresh.png", thresh)
+    # cv2.imshow("thresh", thresh)
+    cv2.imwrite("/home/liushiqi9/thresh.png", thresh)
     return thresh
 
 
@@ -160,9 +156,7 @@ def find_cards(thresh_image):
 
     # Find contours and sort their indices by contour size
     cnts, hier = cv2.findContours(thresh_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    index_sort = sorted(
-        range(len(cnts)), key=lambda i: cv2.contourArea(cnts[i]), reverse=True
-    )
+    index_sort = sorted(range(len(cnts)), key=lambda i: cv2.contourArea(cnts[i]), reverse=True)
 
     # If there are no contours, do nothing
     if len(cnts) == 0:
@@ -191,12 +185,7 @@ def find_cards(thresh_image):
         peri = cv2.arcLength(cnts_sort[i], True)
         approx = cv2.approxPolyDP(cnts_sort[i], 0.01 * peri, True)
         print(
-            "analyze card size",
-            size,
-            ", hier[3]: ",
-            hier_sort[i][3],
-            ", len(appr): ",
-            len(approx),
+            "analyze card size", size, ", hier[3]: ", hier_sort[i][3], ", len(appr): ", len(approx),
         )
         # warnning: I removed this size limitations because now is not sure set to what.
         if (size < CARD_MAX_AREA) and (size > CARD_MIN_AREA):
@@ -210,7 +199,7 @@ def find_cards(thresh_image):
 def preprocess_corner(Qcorner):
     qCard = Query_card()
     qCard.warp = cv2.cvtColor(Qcorner, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("hand_warp", qCard.warp)
+    # cv2.imshow("hand_warp", qCard.warp)
     # cv2.imshow("Qcorner_zoom" + str(index), Qcorner_zoom)
     # Sample known white pixel intensity to determine good threshold level
     # white_level = Qcorner_zoom[15, int((CORNER_WIDTH * 4) / 2)]
@@ -229,26 +218,22 @@ def preprocess_corner(Qcorner):
     # Qsuit = qCard.warp[115:190, 0:85]
     # cv2.imshow("Qrank" + str(index), Qrank)
     # cv2.imshow("Qsuit" + str(index), Qsuit)
-    key = cv2.waitKey(0) & 0xFF
+    # key = cv2.waitKey(0) & 0xFF
     rank_corner = qCard.warp[5:48, 13:43]
     # key = cv2.waitKey(0) & 0xFF
     rank_corner_zoom = cv2.resize(rank_corner, (0, 0), fx=4, fy=4)
     rank_corner_blur = cv2.GaussianBlur(rank_corner_zoom, (5, 5), 0)
-    retval, rank_corner_thresh = cv2.threshold(
-        rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV
-    )
+    retval, rank_corner_thresh = cv2.threshold(rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
 
     suit_corner = qCard.warp[40:74, 14:45]
     # key = cv2.waitKey(0) & 0xFF
     suit_corner_zoom = cv2.resize(suit_corner, (0, 0), fx=4, fy=4)
     suit_corner_blur = cv2.GaussianBlur(suit_corner_zoom, (5, 5), 0)
-    retval, suit_corner_thresh = cv2.threshold(
-        suit_corner_blur, 155, 255, cv2.THRESH_BINARY_INV
-    )
+    retval, suit_corner_thresh = cv2.threshold(suit_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
 
-    cv2.imshow("hand_rank_corner_thresh", rank_corner_thresh)
-    cv2.imshow("hand_suit_corner_thresh", suit_corner_thresh)
-    key = cv2.waitKey(0) & 0xFF
+    # cv2.imshow("hand_rank_corner_thresh", rank_corner_thresh)
+    # cv2.imshow("hand_suit_corner_thresh", suit_corner_thresh)
+    # key = cv2.waitKey(0) & 0xFF
     # Find rank contour and bounding rectangle, isolate and find largest contour
     Qrank = rank_corner_thresh
     Qsuit = suit_corner_thresh
@@ -274,8 +259,8 @@ def preprocess_corner(Qcorner):
         Qsuit_roi = Qsuit[y2 : y2 + h2, x2 : x2 + w2]
         Qsuit_sized = cv2.resize(Qsuit_roi, (SUIT_WIDTH, SUIT_HEIGHT), 0, 0)
         qCard.suit_img = Qsuit_sized
-    cv2.imshow("HandQCardSuit", qCard.suit_img)
-    cv2.imshow("HandQCardRank", qCard.rank_img)
+    # cv2.imshow("HandQCardSuit", qCard.suit_img)
+    # cv2.imshow("HandQCardRank", qCard.rank_img)
     return qCard
 
 
@@ -307,7 +292,7 @@ def preprocess_card(contour, image, index=0):
     # Warp card into 200x300 flattened image using perspective transform
     qCard.warp = flattener(image, pts, w, h)
 
-    cv2.imshow("QWarp" + str(index), qCard.warp)
+    # cv2.imshow("QWarp" + str(index), qCard.warp)
 
     # Grab corner of warped card image and do a 4x zoom
     Qcorner = qCard.warp[0:CORNER_HEIGHT, 0:CORNER_WIDTH]
@@ -318,9 +303,7 @@ def preprocess_card(contour, image, index=0):
     thresh_level = white_level - CARD_THRESH
     if thresh_level <= 0:
         thresh_level = 1
-    retval, query_thresh = cv2.threshold(
-        Qcorner_zoom, thresh_level, 255, cv2.THRESH_BINARY_INV
-    )
+    retval, query_thresh = cv2.threshold(Qcorner_zoom, thresh_level, 255, cv2.THRESH_BINARY_INV)
 
     # cv2.imshow("query_thresh" + str(index), query_thresh)
     # Split in to top and bottom half (top shows rank, bottom shows suit)
@@ -335,20 +318,16 @@ def preprocess_card(contour, image, index=0):
     # key = cv2.waitKey(0) & 0xFF
     rank_corner_zoom = cv2.resize(rank_corner, (0, 0), fx=4, fy=4)
     rank_corner_blur = cv2.GaussianBlur(rank_corner_zoom, (5, 5), 0)
-    retval, rank_corner_thresh = cv2.threshold(
-        rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV
-    )
+    retval, rank_corner_thresh = cv2.threshold(rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
 
     suit_corner = qCard.warp[100:190, 0:85]
     # key = cv2.waitKey(0) & 0xFF
     suit_corner_zoom = cv2.resize(suit_corner, (0, 0), fx=4, fy=4)
     suit_corner_blur = cv2.GaussianBlur(suit_corner_zoom, (5, 5), 0)
-    retval, suit_corner_thresh = cv2.threshold(
-        suit_corner_blur, 155, 255, cv2.THRESH_BINARY_INV
-    )
+    retval, suit_corner_thresh = cv2.threshold(suit_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
 
-    cv2.imshow("rank_corner_thresh" + str(index), rank_corner_thresh)
-    cv2.imshow("suit_corner_thresh" + str(index), suit_corner_thresh)
+    # cv2.imshow("rank_corner_thresh" + str(index), rank_corner_thresh)
+    # cv2.imshow("suit_corner_thresh" + str(index), suit_corner_thresh)
 
     # Find rank contour and bounding rectangle, isolate and find largest contour
     Qrank = rank_corner_thresh
@@ -375,8 +354,8 @@ def preprocess_card(contour, image, index=0):
         Qsuit_roi = Qsuit[y2 : y2 + h2, x2 : x2 + w2]
         Qsuit_sized = cv2.resize(Qsuit_roi, (SUIT_WIDTH, SUIT_HEIGHT), 0, 0)
         qCard.suit_img = Qsuit_sized
-    cv2.imshow("QCardSuit" + str(index), qCard.suit_img)
-    cv2.imshow("QCardRank" + str(index), qCard.rank_img)
+    # cv2.imshow("QCardSuit" + str(index), qCard.suit_img)
+    # cv2.imshow("QCardRank" + str(index), qCard.rank_img)
     return qCard
 
 
@@ -450,38 +429,15 @@ def draw_results(image, qCard):
     # Draw card name twice, so letters have black outline
     font_scale = 0.5
     cv2.putText(
-        image,
-        (rank_name + " of"),
-        (x - 60, y - 10),
-        font,
-        font_scale,
-        (0, 0, 0),
-        3,
-        cv2.LINE_AA,
+        image, (rank_name + " of"), (x - 60, y - 10), font, font_scale, (0, 0, 0), 3, cv2.LINE_AA,
     )
     cv2.putText(
-        image,
-        (rank_name + " of"),
-        (x - 60, y - 10),
-        font,
-        font_scale,
-        (50, 200, 200),
-        2,
-        cv2.LINE_AA,
+        image, (rank_name + " of"), (x - 60, y - 10), font, font_scale, (50, 200, 200), 2, cv2.LINE_AA,
     )
 
+    cv2.putText(image, suit_name, (x - 60, y + 25), font, font_scale, (0, 0, 0), 3, cv2.LINE_AA)
     cv2.putText(
-        image, suit_name, (x - 60, y + 25), font, font_scale, (0, 0, 0), 3, cv2.LINE_AA
-    )
-    cv2.putText(
-        image,
-        suit_name,
-        (x - 60, y + 25),
-        font,
-        font_scale,
-        (50, 200, 200),
-        2,
-        cv2.LINE_AA,
+        image, suit_name, (x - 60, y + 25), font, font_scale, (50, 200, 200), 2, cv2.LINE_AA,
     )
 
     # Can draw difference value for troubleshooting purposes
@@ -555,10 +511,7 @@ def flattener(image, pts, w, h):
 
     # Create destination array, calculate perspective transform matrix,
     # and warp card image
-    dst = np.array(
-        [[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]],
-        np.float32,
-    )
+    dst = np.array([[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]], np.float32,)
     M = cv2.getPerspectiveTransform(temp_rect, dst)
     warp = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
     warp = cv2.cvtColor(warp, cv2.COLOR_BGR2GRAY)

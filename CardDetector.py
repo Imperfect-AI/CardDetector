@@ -43,7 +43,7 @@ train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/new_isolate/")
 # Begin capturing frames
 
 # Grab frame from video stream
-img_path = "/home/yjb/poker_ai/OpenCV-Playing-Card-Detector/OCR/handcard.jpeg"
+img_path = "/home/liushiqi9/workspace/OpenCV-Playing-Card-Detector/OCR/3.png"
 # x: 278:718, y: 315:425
 ori_image = cv2.imread(img_path)
 
@@ -53,16 +53,16 @@ def ParseBoardCard(ori_image):
 
     # Pre-process camera image (gray, blur, and threshold it)
     pre_proc = Cards.preprocess_image(image)
-    cv2.imshow("pre_pro", pre_proc)
+    # cv2.imshow("pre_pro", pre_proc)
     # Find and sort the contours of all cards in the image (query cards)
     cnts_sort, cnt_is_card = Cards.find_cards(pre_proc)
     # print(cnts_sort)
     # If there are no contours, do nothing
+    cards = []
     if len(cnts_sort) != 0:
 
         # Initialize a new "cards" list to assign the card objects.
         # k indexes the newly made array of cards.
-        cards = []
         k = 0
 
         # For each contour detected:
@@ -77,12 +77,9 @@ def ParseBoardCard(ori_image):
                 cards.append(Cards.preprocess_card(cnts_sort[i], image, i))
 
                 # Find the best rank and suit match for the card.
-                (
-                    cards[k].best_rank_match,
-                    cards[k].best_suit_match,
-                    cards[k].rank_diff,
-                    cards[k].suit_diff,
-                ) = Cards.match_card(cards[k], train_ranks, train_suits)
+                (cards[k].best_rank_match, cards[k].best_suit_match, cards[k].rank_diff, cards[k].suit_diff,) = Cards.match_card(
+                    cards[k], train_ranks, train_suits
+                )
 
                 # Draw center point and match result on the image.
                 image = Cards.draw_results(image, cards[k])
@@ -103,40 +100,54 @@ def ParseBoardCard(ori_image):
 
     # Finally, display the image with the identified cards!
     # cv2.imshow("Card Detector", image)
-    cv2.imwrite("/home/yjb/img.png", image)
+    # cv2.imwrite("/home/sqliu/img.png", image)
 
-    key = cv2.waitKey(0) & 0xFF
-    if key == ord("c"):
-        cv2.destroyAllWindows()
+    # Pause
+    # key = cv2.waitKey(0) & 0xFF
+    # if key == ord("c"):
+    #    cv2.destroyAllWindows()
+
     # Close all windows and close the PiCamera video stream.
     # cv2.destroyAllWindows()
+    return cards
 
 
 def ParseHandCard1(ori_image):
     # ParseHandCard(ori_image, 420, 474, 564, 635)
-    ParseHandCard(ori_image, 564, 640, 420, 474)
+    return ParseHandCard(ori_image, 564, 640, 420, 474)
 
 
 def ParseHandCard2(ori_image):
     # ParseHandCard(ori_image, 420, 474, 564, 635)
-    ParseHandCard(ori_image, 561, 635, 475, 527)
+    # rotate
+    image_info = ori_image.shape
+    matRotate = cv2.getRotationMatrix2D((image_info[0], image_info[1]), 5, 1)
+    rotate_img = cv2.warpAffine(ori_image, matRotate, (image_info[0], image_info[1]))
+    # cv2.imshow("ParseHandCard2: ", rotate_img)
+    return ParseHandCard(rotate_img, 583, 656, 443, 485)
 
 
 def ParseHandCard(ori_image, x1, x2, y1, y2):
     Qcorner = ori_image[x1:x2, y1:y2]
     # this image is already the corner of the card. we need to resize it and grey it.
 
+    # cv2.imshow("ParseCardCorner: ", Qcorner)
     card = Cards.preprocess_corner(Qcorner)
-    (best_rank_match, best_suit_match, rank_diff, suit_diff,) = Cards.match_card(
-        card, train_ranks, train_suits
-    )
+    (best_rank_match, best_suit_match, rank_diff, suit_diff,) = Cards.match_card(card, train_ranks, train_suits)
     print("Rank: ", best_rank_match, ",suit: ", best_suit_match)
+    return (best_rank_match, best_suit_match)
 
 
-cv2.imshow("ori_image", ori_image)
-ParseHandCard1(ori_image)
-ParseHandCard2(ori_image)
-key = cv2.waitKey(0) & 0xFF
-if key == ord("c"):
-    cv2.destroyAllWindows()
+if __name__ == "__main__":
+    cv2.imshow("ori_image", ori_image)
+    ParseHandCard1(ori_image)
+    ParseHandCard2(ori_image)
+    board_cards = ParseBoardCard(ori_image)
+    for board_card in board_cards:
+        print(
+            "Board card: ", board_card.best_rank_match, ", suit: ", board_card.best_suit_match,
+        )
+    key = cv2.waitKey(0) & 0xFF
+    if key == ord("c"):
+        cv2.destroyAllWindows()
 

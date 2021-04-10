@@ -7,9 +7,7 @@ import numpy as np
 
 
 sys.path.append("/home/liushiqi9/workspace/slumbot2019/src/thrift/gen-py")
-sys.path.append(
-    "/home/liushiqi9/workspace/thrift-0.13.0/lib/py/build/lib.linux-x86_64-3.8/"
-)
+sys.path.append("/home/liushiqi9/workspace/thrift-0.13.0/lib/py/build/lib.linux-x86_64-3.8/")
 
 
 from recognition_server import RecognitionServer
@@ -36,7 +34,7 @@ client = RecognitionServer.Client(protocol)
 # Connect!
 transport.open()
 
-img_path = "/home/liushiqi9/workspace/OpenCV-Playing-Card-Detector/OCR/3.png"
+img_path = "/home/liushiqi9/workspace/OpenCV-Playing-Card-Detector/wrong_img/w1.jpeg"
 ori_image = cv2.imread(img_path)
 img = base64.b64encode(ori_image)
 
