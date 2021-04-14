@@ -13,15 +13,6 @@ import time
 import Cards
 import os
 
-
-### ---- INITIALIZATION ---- ###
-# Define constants and initialize variables
-
-# Camera settings
-IM_WIDTH = 1280
-IM_HEIGHT = 720
-FRAME_RATE = 10
-
 # Initialize calculated frame rate because it's calculated AFTER the first time it's displayed
 frame_rate_calc = 1
 freq = cv2.getTickFrequency()
@@ -31,8 +22,8 @@ freq = cv2.getTickFrequency()
 
 # Load the train rank and suit images
 path = os.path.dirname(os.path.abspath(__file__))
-train_ranks = Cards.load_ranks(path + "/Card_Imgs/ggpoker/new_isolate/")
-train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/new_isolate/")
+train_ranks = Cards.load_ranks(os.path.join(path, "hh_poker_card", "converted"))
+train_suits = Cards.load_suits(os.path.join(path, "hh_poker_card", "converted"))
 
 
 ### ---- MAIN LOOP ---- ###
@@ -41,11 +32,6 @@ train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/new_isolate/")
 
 
 # Begin capturing frames
-
-# Grab frame from video stream
-img_path = "/home/liushiqi9/workspace/OpenCV-Playing-Card-Detector/OCR/3.png"
-# x: 278:718, y: 315:425
-ori_image = cv2.imread(img_path)
 
 # BoardCards
 def ParseBoardCard(ori_image):
@@ -77,9 +63,12 @@ def ParseBoardCard(ori_image):
                 cards.append(Cards.preprocess_card(cnts_sort[i], image, i))
 
                 # Find the best rank and suit match for the card.
-                (cards[k].best_rank_match, cards[k].best_suit_match, cards[k].rank_diff, cards[k].suit_diff,) = Cards.match_card(
-                    cards[k], train_ranks, train_suits
-                )
+                (
+                    cards[k].best_rank_match,
+                    cards[k].best_suit_match,
+                    cards[k].rank_diff,
+                    cards[k].suit_diff,
+                ) = Cards.match_card(cards[k], train_ranks, train_suits)
 
                 # Draw center point and match result on the image.
                 image = Cards.draw_results(image, cards[k])
@@ -133,21 +122,25 @@ def ParseHandCard(ori_image, x1, x2, y1, y2):
 
     # cv2.imshow("ParseCardCorner: ", Qcorner)
     card = Cards.preprocess_corner(Qcorner)
-    (best_rank_match, best_suit_match, rank_diff, suit_diff,) = Cards.match_card(card, train_ranks, train_suits)
+    (
+        best_rank_match,
+        best_suit_match,
+        rank_diff,
+        suit_diff,
+    ) = Cards.match_card(card, train_ranks, train_suits)
     print("Rank: ", best_rank_match, ",suit: ", best_suit_match)
     return (best_rank_match, best_suit_match)
 
 
 if __name__ == "__main__":
-    cv2.imshow("ori_image", ori_image)
-    ParseHandCard1(ori_image)
-    ParseHandCard2(ori_image)
-    board_cards = ParseBoardCard(ori_image)
-    for board_card in board_cards:
-        print(
-            "Board card: ", board_card.best_rank_match, ", suit: ", board_card.best_suit_match,
-        )
+    for i in range(17):
+        img_path = os.path.join(path, "hh_poker_card", str(i + 1) + ".jpg")
+        print("read image: ", img_path)
+        original_image = cv2.imread(img_path)
+        cv2.imshow("original image", original_image)
+        key = cv2.waitKey(0) & 0xFF
+        ParseHandCard(original_image, 0, 190, 0, 110)
+
     key = cv2.waitKey(0) & 0xFF
     if key == ord("c"):
         cv2.destroyAllWindows()
-

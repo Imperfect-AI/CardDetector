@@ -9,7 +9,7 @@
 # Import necessary packages
 import numpy as np
 import cv2
-import time
+import os
 
 ### Constants ###
 
@@ -101,7 +101,7 @@ def load_ranks(filepath):
         train_ranks.append(Train_ranks())
         train_ranks[i].name = Rank
         filename = Rank + ".jpg"
-        train_ranks[i].img = cv2.imread(filepath + filename, cv2.IMREAD_GRAYSCALE)
+        train_ranks[i].img = cv2.imread(os.path.join(filepath, filename), cv2.IMREAD_GRAYSCALE)
         i = i + 1
 
     return train_ranks
@@ -118,7 +118,7 @@ def load_suits(filepath):
         train_suits.append(Train_suits())
         train_suits[i].name = Suit
         filename = Suit + ".jpg"
-        train_suits[i].img = cv2.imread(filepath + filename, cv2.IMREAD_GRAYSCALE)
+        train_suits[i].img = cv2.imread(os.path.join(filepath, filename), cv2.IMREAD_GRAYSCALE)
         i = i + 1
 
     return train_suits
@@ -185,7 +185,12 @@ def find_cards(thresh_image):
         peri = cv2.arcLength(cnts_sort[i], True)
         approx = cv2.approxPolyDP(cnts_sort[i], 0.01 * peri, True)
         print(
-            "analyze card size", size, ", hier[3]: ", hier_sort[i][3], ", len(appr): ", len(approx),
+            "analyze card size",
+            size,
+            ", hier[3]: ",
+            hier_sort[i][3],
+            ", len(appr): ",
+            len(approx),
         )
         # warnning: I removed this size limitations because now is not sure set to what.
         if (size < CARD_MAX_AREA) and (size > CARD_MIN_AREA):
@@ -219,13 +224,13 @@ def preprocess_corner(Qcorner):
     # cv2.imshow("Qrank" + str(index), Qrank)
     # cv2.imshow("Qsuit" + str(index), Qsuit)
     # key = cv2.waitKey(0) & 0xFF
-    rank_corner = qCard.warp[5:48, 13:43]
+    rank_corner = qCard.warp[0:25, 0:40]
     # key = cv2.waitKey(0) & 0xFF
     rank_corner_zoom = cv2.resize(rank_corner, (0, 0), fx=4, fy=4)
     rank_corner_blur = cv2.GaussianBlur(rank_corner_zoom, (5, 5), 0)
     retval, rank_corner_thresh = cv2.threshold(rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
 
-    suit_corner = qCard.warp[40:74, 14:45]
+    suit_corner = qCard.warp[40:74, 14:60]
     # key = cv2.waitKey(0) & 0xFF
     suit_corner_zoom = cv2.resize(suit_corner, (0, 0), fx=4, fy=4)
     suit_corner_blur = cv2.GaussianBlur(suit_corner_zoom, (5, 5), 0)
@@ -261,6 +266,7 @@ def preprocess_corner(Qcorner):
         qCard.suit_img = Qsuit_sized
     # cv2.imshow("HandQCardSuit", qCard.suit_img)
     # cv2.imshow("HandQCardRank", qCard.rank_img)
+    # key = cv2.waitKey(0) & 0xFF
     return qCard
 
 
@@ -429,15 +435,36 @@ def draw_results(image, qCard):
     # Draw card name twice, so letters have black outline
     font_scale = 0.5
     cv2.putText(
-        image, (rank_name + " of"), (x - 60, y - 10), font, font_scale, (0, 0, 0), 3, cv2.LINE_AA,
+        image,
+        (rank_name + " of"),
+        (x - 60, y - 10),
+        font,
+        font_scale,
+        (0, 0, 0),
+        3,
+        cv2.LINE_AA,
     )
     cv2.putText(
-        image, (rank_name + " of"), (x - 60, y - 10), font, font_scale, (50, 200, 200), 2, cv2.LINE_AA,
+        image,
+        (rank_name + " of"),
+        (x - 60, y - 10),
+        font,
+        font_scale,
+        (50, 200, 200),
+        2,
+        cv2.LINE_AA,
     )
 
     cv2.putText(image, suit_name, (x - 60, y + 25), font, font_scale, (0, 0, 0), 3, cv2.LINE_AA)
     cv2.putText(
-        image, suit_name, (x - 60, y + 25), font, font_scale, (50, 200, 200), 2, cv2.LINE_AA,
+        image,
+        suit_name,
+        (x - 60, y + 25),
+        font,
+        font_scale,
+        (50, 200, 200),
+        2,
+        cv2.LINE_AA,
     )
 
     # Can draw difference value for troubleshooting purposes
@@ -511,7 +538,10 @@ def flattener(image, pts, w, h):
 
     # Create destination array, calculate perspective transform matrix,
     # and warp card image
-    dst = np.array([[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]], np.float32,)
+    dst = np.array(
+        [[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]],
+        np.float32,
+    )
     M = cv2.getPerspectiveTransform(temp_rect, dst)
     warp = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
     warp = cv2.cvtColor(warp, cv2.COLOR_BGR2GRAY)

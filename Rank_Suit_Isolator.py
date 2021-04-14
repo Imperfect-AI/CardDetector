@@ -5,13 +5,10 @@
 # Import necessary packages
 import cv2
 import numpy as np
-import time
 import Cards
 import os
 
-img_path = (
-    os.path.dirname(os.path.abspath(__file__)) + "/Card_Imgs/ggpoker/new_isolate/"
-)
+img_path = os.path.dirname(os.path.abspath(__file__)) + "/Card_Imgs/ggpoker/new_isolate/"
 
 print(img_path)
 IM_WIDTH = 1280
@@ -25,7 +22,8 @@ SUIT_HEIGHT = 100
 
 # Use counter variable to switch from isolating Rank to isolating Suit
 i = 0
-image_dir = "/home/yjb/poker_ai/OpenCV-Playing-Card-Detector/Card_Imgs/ggpoker/"
+image_dir = "hh_poker_card"
+target_dir = os.path.join(image_dir, "converted")
 name_list = [
     "Ace",
     "Two",
@@ -45,14 +43,14 @@ name_list = [
     "Clubs",
     "Hearts",
 ]
-for index in range(17):
-    i = i + 1
+for index in [15]:
+    i = 10
     Name = name_list[i - 1]
-    source_file_name = "original_img/" + str(i) + ".png"
+    source_file_name = str(i) + ".jpg"
     filename = Name + ".jpg"
 
-    print("start processing imgage: ", source_file_name)
-    image = cv2.imread(image_dir + source_file_name)
+    print("start processing imgage: ", (os.path.join(image_dir, source_file_name)))
+    image = cv2.imread(os.path.join(image_dir, source_file_name))
     cv2.imshow(source_file_name, image)
     # Pre-process image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -92,30 +90,27 @@ for index in range(17):
     h = 85
     w2 = 75
     color = (255, 255, 0)
-    cv2.rectangle(warp, (x, y), (x + h, y + w), color, thickness=1)
-    cv2.rectangle(warp, (x, y + w), (x + h, y + w + w2), color, thickness=1)
+    # cv2.rectangle(warp, (x, y), (x + h, y + w), color, thickness=1)
+    # cv2.rectangle(warp, (x, y + w), (x + h, y + w + w2), color, thickness=1)
 
     # Grab corner of card image, zoom, and threshold
     cv2.imshow("Warp" + str(i), warp)
 
-    rank_corner = warp[0:115, 0:85]
+    rank_corner = warp[0:115, 0:110]
     # key = cv2.waitKey(0) & 0xFF
     rank_corner_zoom = cv2.resize(rank_corner, (0, 0), fx=4, fy=4)
     rank_corner_blur = cv2.GaussianBlur(rank_corner_zoom, (5, 5), 0)
-    retval, rank_corner_thresh = cv2.threshold(
-        rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV
-    )
-    # cv2.imshow("Rank_corner" + str(i), rank_corner)
+    retval, rank_corner_thresh = cv2.threshold(rank_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
+    cv2.imshow("Rank_corner" + str(i), rank_corner)
     # cv2.imshow("Rank_cornerZoom" + str(i), rank_corner_zoom)
     # cv2.imshow("Rank_cornerThresh" + str(i), rank_corner_thresh)
 
-    suit_corner = warp[115:190, 0:85]
+    suit_corner = warp[110:190, 0:85]
+    # cv2.imshow("suit_corner" + str(i), suit_corner)
     # key = cv2.waitKey(0) & 0xFF
     suit_corner_zoom = cv2.resize(suit_corner, (0, 0), fx=4, fy=4)
     suit_corner_blur = cv2.GaussianBlur(suit_corner_zoom, (5, 5), 0)
-    retval, suit_corner_thresh = cv2.threshold(
-        suit_corner_blur, 155, 255, cv2.THRESH_BINARY_INV
-    )
+    retval, suit_corner_thresh = cv2.threshold(suit_corner_blur, 155, 255, cv2.THRESH_BINARY_INV)
     # cv2.imshow("Suit_corner" + str(i), suit_corner)
     # cv2.imshow("Suit_cornerZoom" + str(i), suit_corner_zoom)
     # cv2.imshow("Suit_cornerThresh" + str(i), suit_corner_thresh)
@@ -143,8 +138,8 @@ for index in range(17):
         final_img = suit_sized
 
     cv2.imshow("Image", final_img)
-    cv2.imwrite(img_path + filename, final_img)
-    print("write into dir: ", img_path + filename)
+    cv2.imwrite(os.path.join(target_dir, filename), final_img)
+    print("write into dir: ", os.path.join(target_dir, filename))
 
 
 print('Press "c" to continue.')
