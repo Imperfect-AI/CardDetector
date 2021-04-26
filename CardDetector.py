@@ -132,6 +132,10 @@ def ParseHandCard(ori_image, x1, x2, y1, y2):
     return (best_rank_match, best_suit_match)
 
 
+def ParseHHPokerCard(img):
+    return ParseHandCard(img, 0, 190, 0, 110)
+
+
 if __name__ == "__main__":
     for i in range(17):
         img_path = os.path.join(path, "hh_poker_card", str(i + 1) + ".jpg")
