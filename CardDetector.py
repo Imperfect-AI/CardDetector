@@ -10,7 +10,7 @@
 import cv2
 import numpy as np
 import time
-import Cards
+from card_detector import Cards
 import os
 
 # Initialize calculated frame rate because it's calculated AFTER the first time it's displayed
