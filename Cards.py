@@ -229,8 +229,8 @@ def preprocess_corner(Qcorner):
     # key = cv2.waitKey(0) & 0xFF
     white_thresh = mean(map(mean, zip(*rank_corner)))
     print(white_thresh)
-    if white_thresh > 200:
-        white_thresh = 180
+    if white_thresh > 170:
+        white_thresh = 170
     rank_corner_zoom = cv2.resize(rank_corner, (0, 0), fx=4, fy=4)
     rank_corner_blur = cv2.GaussianBlur(rank_corner_zoom, (5, 5), 0)
     retval, rank_corner_thresh = cv2.threshold(rank_corner_blur, white_thresh, 255, cv2.THRESH_BINARY_INV)
