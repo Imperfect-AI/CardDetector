@@ -10,7 +10,7 @@
 import cv2
 import numpy as np
 import time
-from . import Cards
+from card_detector import Cards
 import os
 
 
