@@ -10,7 +10,7 @@
 import cv2
 import numpy as np
 import time
-import Cards
+from card_detector import Cards
 import os
 
 
@@ -77,9 +77,12 @@ def ParseBoardCard(ori_image):
                 cards.append(Cards.preprocess_card(cnts_sort[i], image, i))
 
                 # Find the best rank and suit match for the card.
-                (cards[k].best_rank_match, cards[k].best_suit_match, cards[k].rank_diff, cards[k].suit_diff,) = Cards.match_card(
-                    cards[k], train_ranks, train_suits
-                )
+                (
+                    cards[k].best_rank_match,
+                    cards[k].best_suit_match,
+                    cards[k].rank_diff,
+                    cards[k].suit_diff,
+                ) = Cards.match_card(cards[k], train_ranks, train_suits)
 
                 # Draw center point and match result on the image.
                 image = Cards.draw_results(image, cards[k])
@@ -133,7 +136,12 @@ def ParseHandCard(ori_image, x1, x2, y1, y2):
 
     # cv2.imshow("ParseCardCorner: ", Qcorner)
     card = Cards.preprocess_corner(Qcorner)
-    (best_rank_match, best_suit_match, rank_diff, suit_diff,) = Cards.match_card(card, train_ranks, train_suits)
+    (
+        best_rank_match,
+        best_suit_match,
+        rank_diff,
+        suit_diff,
+    ) = Cards.match_card(card, train_ranks, train_suits)
     print("Rank: ", best_rank_match, ",suit: ", best_suit_match)
     return (best_rank_match, best_suit_match)
 
@@ -145,9 +153,11 @@ if __name__ == "__main__":
     board_cards = ParseBoardCard(ori_image)
     for board_card in board_cards:
         print(
-            "Board card: ", board_card.best_rank_match, ", suit: ", board_card.best_suit_match,
+            "Board card: ",
+            board_card.best_rank_match,
+            ", suit: ",
+            board_card.best_suit_match,
         )
     key = cv2.waitKey(0) & 0xFF
     if key == ord("c"):
         cv2.destroyAllWindows()
-
