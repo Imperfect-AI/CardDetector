@@ -43,7 +43,7 @@ train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/new_isolate/")
 # Begin capturing frames
 
 # Grab frame from video stream
-img_path = "/home/liushiqi9/workspace/OpenCV-Playing-Card-Detector/OCR/3.png"
+img_path = "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\244.jpg"
 # x: 278:718, y: 315:425
 ori_image = cv2.imread(img_path)
 
@@ -115,26 +115,47 @@ def ParseBoardCard(ori_image):
     return cards
 
 
+card_hight = 67
+card_width = 48
+
+
 def ParseHandCard1(ori_image):
-    # ParseHandCard(ori_image, 420, 474, 564, 635)
-    return ParseHandCard(ori_image, 564, 640, 420, 474)
+    # ParseCard(ori_image, 420, 474, 564, 635)
+    image_info = ori_image.shape
+    matRotate = cv2.getRotationMatrix2D((image_info[0], image_info[1]), -6, 1)
+    rotate_img = cv2.warpAffine(ori_image, matRotate, (image_info[0], image_info[1]))
+    # cv2.imwrite(
+    #    "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\rotate_1_1.jpeg",
+    #    rotate_img,
+    # )
+    # cv2.imshow("ParseHandCard1: ", rotate_img)
+    # key = cv2.waitKey(0) & 0xFF
+    return ParseCard(rotate_img, 341, 316)
 
 
 def ParseHandCard2(ori_image):
-    # ParseHandCard(ori_image, 420, 474, 564, 635)
+    # ParseCard(ori_image, 420, 474, 564, 635)
     # rotate
     image_info = ori_image.shape
-    matRotate = cv2.getRotationMatrix2D((image_info[0], image_info[1]), 5, 1)
+    matRotate = cv2.getRotationMatrix2D((image_info[0], image_info[1]), 6, 1)
     rotate_img = cv2.warpAffine(ori_image, matRotate, (image_info[0], image_info[1]))
+    # cv2.imwrite(
+    #    "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\rotate_1_2.jpeg",
+    #    rotate_img,
+    # )
     # cv2.imshow("ParseHandCard2: ", rotate_img)
-    return ParseHandCard(rotate_img, 583, 656, 443, 485)
+    # key = cv2.waitKey(0) & 0xFF
+    return ParseCard(rotate_img, 374, 291)
 
 
-def ParseHandCard(ori_image, x1, x2, y1, y2):
+def ParseCard(ori_image, x1, y1):
+    x2 = x1 + card_hight
+    y2 = y1 + card_width
     Qcorner = ori_image[x1:x2, y1:y2]
     # this image is already the corner of the card. we need to resize it and grey it.
 
     # cv2.imshow("ParseCardCorner: ", Qcorner)
+    # key = cv2.waitKey(0) & 0xFF
     card = Cards.preprocess_corner(Qcorner)
     (
         best_rank_match,
@@ -150,14 +171,14 @@ if __name__ == "__main__":
     cv2.imshow("ori_image", ori_image)
     ParseHandCard1(ori_image)
     ParseHandCard2(ori_image)
-    board_cards = ParseBoardCard(ori_image)
-    for board_card in board_cards:
-        print(
-            "Board card: ",
-            board_card.best_rank_match,
-            ", suit: ",
-            board_card.best_suit_match,
-        )
+    # board_cards = ParseBoardCard(ori_image)
+    # for board_card in board_cards:
+    #    print(
+    #        "Board card: ",
+    #        board_card.best_rank_match,
+    #        ", suit: ",
+    #        board_card.best_suit_match,
+    #    )
     key = cv2.waitKey(0) & 0xFF
     if key == ord("c"):
         cv2.destroyAllWindows()
