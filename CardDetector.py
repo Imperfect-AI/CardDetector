@@ -31,8 +31,8 @@ freq = cv2.getTickFrequency()
 
 # Load the train rank and suit images
 path = os.path.dirname(os.path.abspath(__file__))
-train_ranks = Cards.load_ranks(path + "/Card_Imgs/ggpoker/new_isolate/")
-train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/new_isolate/")
+train_ranks = Cards.load_ranks(path + "/Card_Imgs/ggpoker/2022_01_22_isolate/")
+train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/2022_01_22_isolate/")
 
 
 ### ---- MAIN LOOP ---- ###
@@ -43,7 +43,7 @@ train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/new_isolate/")
 # Begin capturing frames
 
 # Grab frame from video stream
-img_path = "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\244.jpg"
+img_path = "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\1.jpg"
 # x: 278:718, y: 315:425
 ori_image = cv2.imread(img_path)
 

@@ -397,6 +397,10 @@ def match_card(qCard, train_ranks, train_suits):
     # If no contours were found in query card in preprocess_card function,
     # the img size is zero, so skip the differencing process
     # (card will be left as Unknown)
+    # cv2.imwrite(
+    #   "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\rotate_1_2.jpeg",
+    #   qCard.rank_img,
+    # )
     if (len(qCard.rank_img) != 0) and (len(qCard.suit_img) != 0):
 
         # Difference the query card rank image from each of the train rank images,
