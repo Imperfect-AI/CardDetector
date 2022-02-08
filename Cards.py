@@ -101,11 +101,14 @@ def load_ranks(filepath):
         "Jack",
         "Queen",
         "King",
+        "Old_Ten",
     ]:
         train_ranks.append(Train_ranks())
         train_ranks[i].name = Rank
         filename = Rank + ".jpg"
         train_ranks[i].img = cv2.imread(filepath + filename, cv2.IMREAD_GRAYSCALE)
+        if (train_ranks[i].name == "Old_Ten"):
+            train_ranks[i].name = "Ten"
         i = i + 1
 
     return train_ranks
