@@ -12,6 +12,13 @@ import numpy as np
 import time
 from card_detector import Cards
 import os
+from recognition.image_helper import is_same_color
+
+
+diamond_blue = (4, 38, 189)
+club_green = (43, 126, 38)
+spade_black = (1, 1, 1)
+heart_red = (201, 22, 18)
 
 
 ### ---- INITIALIZATION ---- ###
@@ -43,9 +50,9 @@ train_suits = Cards.load_suits(path + "/Card_Imgs/ggpoker/2022_01_22_isolate/")
 # Begin capturing frames
 
 # Grab frame from video stream
-img_path = "D:\\workspace\\GGPoker\\PokerUI\\card_detector\\OCR\\1.jpg"
+img_path = "D:\\workspace\\GGPoker\\PokerUI\\0301\\no_paimian\\3932.jpg"
 # x: 278:718, y: 315:425
-ori_image = cv2.imread(img_path)
+ori_image = cv2.imread(img_path)[..., ::-1]
 
 # BoardCards
 def ParseBoardCard(ori_image):
@@ -148,6 +155,20 @@ def ParseHandCard2(ori_image):
     return ParseCard(rotate_img, 374, 291)
 
 
+def ParseColorSuit(color):
+    tolarence = 3000
+    if is_same_color(color, heart_red, tolarence):
+        return "Hearts"
+    if is_same_color(color, spade_black, tolarence):
+        return "Spades"
+    if is_same_color(color, diamond_blue, tolarence):
+        return "Diamonds"
+    if is_same_color(color, club_green, tolarence):
+        return "Clubs"
+    print("meet unkown color: ", str(color))
+    return "Unkownn"
+
+
 def ParseCard(ori_image, x1, y1):
     x2 = x1 + card_hight
     y2 = y1 + card_width
@@ -156,6 +177,14 @@ def ParseCard(ori_image, x1, y1):
 
     # cv2.imshow("ParseCardCorner: ", Qcorner)
     # key = cv2.waitKey(0) & 0xFF
+    # global num
+    # cv2.imwrite(
+    #    "D:\\workspace\\GGPoker\\PokerUI\\0301\\no_paimian\\1_" + str(num) + ".jpg",
+    #    Qcorner,
+    # )
+    # num += 1
+    # print("color: ", str(Qcorner[31, 11]))
+    color_suit = ParseColorSuit(Qcorner[31, 11])
     card = Cards.preprocess_corner(Qcorner)
     (
         best_rank_match,
@@ -163,14 +192,28 @@ def ParseCard(ori_image, x1, y1):
         rank_diff,
         suit_diff,
     ) = Cards.match_card(card, train_ranks, train_suits)
-    print("Rank: ", best_rank_match, ",suit: ", best_suit_match)
-    return (best_rank_match, best_suit_match)
+    print(
+        "Rank: ",
+        best_rank_match,
+        ",suit: ",
+        best_suit_match,
+        ", color suit: ",
+        color_suit,
+    )
+    return (best_rank_match, color_suit)
 
 
 if __name__ == "__main__":
     cv2.imshow("ori_image", ori_image)
     ParseHandCard1(ori_image)
     ParseHandCard2(ori_image)
+
+    board_card_x = 202
+    board_card_y = [194, 250, 306, 362, 414]
+
+    for i in range(3):
+        ParseCard(ori_image, board_card_x, board_card_y[i])
+
     # board_cards = ParseBoardCard(ori_image)
     # for board_card in board_cards:
     #    print(
