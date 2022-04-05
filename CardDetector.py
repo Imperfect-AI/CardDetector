@@ -17,6 +17,7 @@ from recognition.image_helper import is_same_color
 
 diamond_blue = (4, 38, 189)
 club_green = (43, 126, 38)
+club_green_2 = (78, 134, 71)
 spade_black = (1, 1, 1)
 heart_red = (201, 22, 18)
 
@@ -24,6 +25,7 @@ heart_red = (201, 22, 18)
 ### ---- INITIALIZATION ---- ###
 # Define constants and initialize variables
 
+num = 0
 # Camera settings
 IM_WIDTH = 1280
 IM_HEIGHT = 720
@@ -164,6 +166,8 @@ def ParseColorSuit(color):
     if is_same_color(color, diamond_blue, tolarence):
         return "Diamonds"
     if is_same_color(color, club_green, tolarence):
+        return "Clubs"
+    if is_same_color(color, club_green_2, tolarence):
         return "Clubs"
     print("meet unkown color: ", str(color))
     return "Unkownn"
